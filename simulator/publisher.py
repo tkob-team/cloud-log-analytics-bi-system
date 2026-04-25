@@ -1,14 +1,18 @@
+import os
 import json
 import time
 import random
-from datetime import datetime
+from datetime import datetime, timezone
 from google.cloud import pubsub_v1
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ============================================================
-# CONFIGURATION — Cập nhật PROJECT_ID trước khi chạy!
+# CONFIGURATION
 # ============================================================
-PROJECT_ID = "your-project-id"   # TODO: đổi thành PROJECT_ID thật
-TOPIC_ID = "website-logs"        # Không thay đổi
+PROJECT_ID = os.getenv("PROJECT_ID")
+TOPIC_ID = os.getenv("TOPIC_ID")
 # ============================================================
 
 publisher = pubsub_v1.PublisherClient()
@@ -34,7 +38,7 @@ ACTIONS = ["view", "click", "add_to_cart", "purchase"]
 
 def run_simulator():
     """Publish fake website log events to Cloud Pub/Sub."""
-    print(f"🚀 Starting simulator...")
+    print(f"   Starting simulator...")
     print(f"   Topic: {topic_path}")
     print(f"   Press Ctrl+C to stop.\n")
 
@@ -46,7 +50,7 @@ def run_simulator():
             feedback = random.choice(FEEDBACK_SAMPLES) if has_feedback else None
 
             data = {
-                "timestamp": datetime.utcnow().isoformat() + "Z",
+                "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                 "user_id": f"USER_{random.randint(1, 50):03d}",
                 "action": random.choice(ACTIONS),
                 "page": random.choice(PAGES),
